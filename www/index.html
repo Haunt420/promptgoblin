@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>KENZEN Cockpit Mobile — Perchance Edition</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b0e0c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Outfit:wght@400;600;700;900&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #0b0e0c;
+      --surface: #141a15;
+      --surface2: #1c241d;
+      --border: #2b3a30;
+      --border-accent: #3d5445;
+      --accent: #67d898;
+      --accent-dim: rgba(103, 216, 152, 0.15);
+      --accent-bright: #8be3ae;
+      --whiskey: #d99a4e;
+      --whiskey-dim: rgba(217, 154, 78, 0.15);
+      --text: #f3ead9;
+      --text-muted: #9ca3af;
+      --danger: #f87171;
+      --radius: 12px;
+      --touch-min: 44px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Fredoka', 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      padding-bottom: 230px;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(11, 14, 12, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand h1 {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--accent);
+    }
+
+    .brand span {
+      font-size: 11px;
+      color: var(--whiskey);
+      background: var(--whiskey-dim);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(217,154,78,0.3);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-header {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      min-height: 36px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-header:active {
+      transform: scale(0.96);
+    }
+
+    .search-box {
+      padding: 10px 14px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .search-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 42px;
+      background: var(--bg);
+      border: 1px solid var(--border-accent);
+      border-radius: 21px;
+      color: var(--text);
+      padding: 0 40px 0 16px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      user-select: auto;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-dim);
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .cat-nav {
+      display: flex;
+      gap: 6px;
+      padding: 10px 14px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cat-nav::-webkit-scrollbar {
+      display: none;
+    }
+
+    .cat-pill {
+      flex: 0 0 auto;
+      padding: 8px 14px;
+      border-radius: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cat-pill.active {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent-bright);
+      font-weight: 700;
+    }
+
+    .cat-badge {
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 1px 6px;
+      font-size: 10px;
+    }
+
+    .cat-pill.active .cat-badge {
+      background: var(--accent);
+      color: #000;
+    }
+
+    .matrix-section {
+      padding: 14px;
+      flex: 1;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--whiskey);
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tags-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag-chip {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      min-height: var(--touch-min);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    }
+
+    .tag-chip:active {
+      transform: scale(0.96);
+    }
+
+    .tag-chip.selected {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      box-shadow: 0 0 10px rgba(103, 216, 152, 0.2);
+    }
+
+    .tag-en {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .tag-chip.selected .tag-en {
+      color: var(--accent-bright);
+      font-weight: 700;
+    }
+
+    .tag-hint {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .tag-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: var(--whiskey);
+      color: #000;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 4px;
+      border-radius: 6px;
+    }
+
+    .cockpit-dock {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(11, 14, 12, 0.98);
+      backdrop-filter: blur(12px);
+      border-top: 1.5px solid var(--border);
+      padding: 10px 14px;
+      padding-bottom: max(14px, env(safe-area-inset-bottom));
+      z-index: 200;
+      box-shadow: 0 -8px 24px rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .dock-mode-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mode-switch {
+      display: flex;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2px;
+    }
+
+    .mode-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .mode-btn.active {
+      background: var(--accent);
+      color: #000;
+      font-weight: 700;
+    }
+
+    .dock-preview {
+      background: var(--surface);
+      border: 1px solid var(--border-accent);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: var(--accent-bright);
+      max-height: 60px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      user-select: auto;
+    }
+
+    .dock-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-action {
+      flex: 1;
+      height: 44px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .btn-action:active {
+      transform: scale(0.97);
+    }
+
+    .btn-copy {
+      background: var(--surface2);
+      color: var(--text);
+    }
+
+    .btn-send {
+      background: linear-gradient(135deg, var(--accent) 0%, #4bb87e 100%);
+      color: #000;
+      border: none;
+      flex: 1.4;
+    }
+
+    .btn-clear {
+      background: rgba(248, 113, 113, 0.15);
+      border-color: var(--danger);
+      color: var(--danger);
+      flex: 0 0 44px;
+    }
+
+    .hub-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 600;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(5px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .hub-modal.open {
+      display: flex;
+    }
+
+    .hub-content {
+      background: var(--surface);
+      border: 1.5px solid var(--border-accent);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 420px;
+      padding: 18px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+    }
+
+    .hub-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .hub-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .hub-item {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .hub-item:active {
+      background: var(--accent-dim);
+    }
+
+    .hub-name {
+      font-weight: 700;
+      font-size: 13.5px;
+      color: #fff;
+    }
+
+    .hub-sub {
+      font-size: 10.5px;
+      color: var(--text-muted);
+    }
+
+    .hub-arrow {
+      color: var(--accent);
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <h1>KENZEN Cockpit</h1>
+      <span>Perchance</span>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="btn-header" id="btnPresets">Presets</button>
+      <button type="button" class="btn-header" id="btnSlots">Slots</button>
+    </div>
+  </header>
+
+  <div class="search-box">
+    <div class="search-input-wrap">
+      <input type="text" class="search-input" id="searchInput" placeholder="Search 41 categories of tags (e.g. wet, portrait, maid)...">
+      <button type="button" class="search-clear" id="searchClear" style="display:none;">✕</button>
+    </div>
+  </div>
+
+  <div class="cat-nav" id="catNav"></div>
+
+  <div class="matrix-section">
+    <div class="section-title">
+      <span id="currentCatTitle">Select Category</span>
+      <span style="font-size:11px; color:var(--text-muted);" id="tagCountBadge">0 tags</span>
+    </div>
+    <div class="tags-grid" id="tagsGrid"></div>
+  </div>
+
+  <div class="cockpit-dock">
+    <div class="dock-mode-row">
+      <div class="mode-switch">
+        <button type="button" class="mode-btn active" data-mode="flux">Flux Prose</button>
+        <button type="button" class="mode-btn" data-mode="slots">Mack Slots</button>
+        <button type="button" class="mode-btn" data-mode="tags">Tag Comma</button>
+      </div>
+      <span style="font-size:11px; color:var(--whiskey);" id="activeCount">0 selected</span>
+    </div>
+
+    <div class="dock-preview" id="dockPreview">Select tags to assemble prompt...</div>
+
+    <div class="dock-actions">
+      <button type="button" class="btn-action btn-clear" id="btnClear" title="Clear all selections">Clear</button>
+      <button type="button" class="btn-action btn-copy" id="btnCopy">Copy</button>
+      <button type="button" class="btn-action btn-send" id="btnLaunch">Send to Perchance</button>
+    </div>
+  </div>
+
+  <div class="hub-modal" id="hubModal">
+    <div class="hub-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 class="hub-title">Launch Perchance Generator</h3>
+        <button type="button" class="search-clear" id="hubClose">✕</button>
+      </div>
+      <div class="hub-list">
+        <div class="hub-item" data-url="https://perchance.org/mack-mcgenerator">
+          <div>
+            <div class="hub-name">Mack's Place (mcgenerator)</div>
+            <div class="hub-sub">Top Shelf Generator, Thousands of Custom Styles</div>
+          </div>
+          <span class="hub-arrow">&gt;</span>
+        </div>
+        <div class="hub-item" data-url="https://perchance.org/ai-real-revolution">
+          <div>
+            <div class="hub-name">AI Real Revolution</div>
+            <div class="hub-sub">Fast, unlimited, no login, prompt studio</div>
+          </div>
+          <span class="hub-arrow">&gt;</span>
+        </div>
+        <div class="hub-item" data-url="https://perchance.org/qinegen">
+          <div>
+            <div class="hub-name">Qinegen</div>
+            <div class="hub-sub">Multifaceted AI generator with custom styles</div>
+          </div>
+          <span class="hub-arrow">&gt;</span>
+        </div>
+        <div class="hub-item" data-url="https://perchance.org/the-imaginarium">
+          <div>
+            <div class="hub-name">The Imaginarium</div>
+            <div class="hub-sub">Vaporwave, Synthwave, Surreal AI Art</div>
+          </div>
+          <span class="hub-arrow">&gt;</span>
+        </div>
+        <div class="hub-item" data-url="https://perchance.org/ai-artgen">
+          <div>
+            <div class="hub-name">AI-Artgen</div>
+            <div class="hub-sub">Classic Perchance AI text-to-image</div>
+          </div>
+          <span class="hub-arrow">&gt;</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="kenzen-storage.js"></script>
+  <script src="tag-inspector.js"></script>
+  <script src="matrix-data.js"></script>
+
+  <script>
+    const state = {
+      activeCategoryIndex: 0,
+      selectedTags: new Map(),
+      currentMode: 'flux',
+      searchQuery: '',
+      inspector: null
+    };
+
+    function init() {
+      state.inspector = new TagInspectorModal((tagRecord, mode, weight) => {
+        if (mode === 'remove') {
+          state.selectedTags.delete(tagRecord.en);
+        } else {
+          state.selectedTags.set(tagRecord.en, {
+            ...tagRecord,
+            weight: weight,
+            space: (mode === 'space'),
+            curly: (mode === 'curly')
+          });
+        }
+        updateUI();
+      });
+
+      renderCategoryNav();
+      renderTagsGrid();
+      setupEvents();
+      updateUI();
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      }
+    }
+
+    function renderCategoryNav() {
+      const nav = document.getElementById('catNav');
+      nav.innerHTML = '';
+      KENZEN_FULL_MATRIX.forEach((cat, idx) => {
+        const pill = document.createElement('button');
+        pill.className = `cat-pill ${idx === state.activeCategoryIndex ? 'active' : ''}`;
+        pill.innerHTML = `<span>${cat.catEn}</span> <span class="cat-badge">${cat.tags.length}</span>`;
+        pill.onclick = () => {
+          state.activeCategoryIndex = idx;
+          state.searchQuery = '';
+          document.getElementById('searchInput').value = '';
+          document.getElementById('searchClear').style.display = 'none';
+          document.querySelectorAll('.cat-pill').forEach((p, i) => p.classList.toggle('active', i === idx));
+          renderTagsGrid();
+        };
+        nav.appendChild(pill);
+      });
+    }
+
+    function renderTagsGrid() {
+      const grid = document.getElementById('tagsGrid');
+      grid.innerHTML = '';
+
+      let tagsToShow = [];
+      if (state.searchQuery) {
+        document.getElementById('currentCatTitle').textContent = `Search: "${state.searchQuery}"`;
+        KENZEN_FULL_MATRIX.forEach(cat => {
+          cat.tags.forEach(t => {
+            if (t.en.toLowerCase().includes(state.searchQuery) || (t.hint && t.hint.toLowerCase().includes(state.searchQuery))) {
+              tagsToShow.push({ ...t, slot: cat.slot, catEn: cat.catEn });
+            }
+          });
+        });
+      } else {
+        const cat = KENZEN_FULL_MATRIX[state.activeCategoryIndex];
+        document.getElementById('currentCatTitle').textContent = cat.catEn;
+        tagsToShow = cat.tags.map(t => ({ ...t, slot: cat.slot, catEn: cat.catEn }));
+      }
+
+      document.getElementById('tagCountBadge').textContent = `${tagsToShow.length} tags`;
+
+      tagsToShow.forEach(tag => {
+        const isSelected = state.selectedTags.has(tag.en);
+        const selData = state.selectedTags.get(tag.en);
+
+        const chip = document.createElement('div');
+        chip.className = `tag-chip ${isSelected ? 'selected' : ''}`;
+
+        chip.innerHTML = `
+          <span class="tag-en">${tag.en}</span>
+          ${tag.hint ? `<span class="tag-hint">${tag.hint}</span>` : ''}
+          ${isSelected && selData && selData.weight !== 1.0 ? `<span class="tag-badge">x${selData.weight.toFixed(1)}</span>` : ''}
+        `;
+
+        let pressTimer = null;
+        let isLongPress = false;
+
+        const startPress = () => {
+          isLongPress = false;
+          pressTimer = setTimeout(() => {
+            isLongPress = true;
+            state.inspector.open(selData || tag);
+          }, 350);
+        };
+
+        const cancelPress = () => clearTimeout(pressTimer);
+
+        chip.addEventListener('touchstart', startPress, { passive: true });
+        chip.addEventListener('touchend', () => {
+          cancelPress();
+          if (!isLongPress) {
+            toggleTag(tag);
+          }
+        });
+        chip.addEventListener('touchmove', cancelPress);
+
+        chip.addEventListener('mousedown', startPress);
+        chip.addEventListener('mouseup', () => {
+          cancelPress();
+          if (!isLongPress) {
+            toggleTag(tag);
+          }
+        });
+        chip.addEventListener('mouseleave', cancelPress);
+
+        grid.appendChild(chip);
+      });
+    }
+
+    function toggleTag(tag) {
+      if (state.selectedTags.has(tag.en)) {
+        state.selectedTags.delete(tag.en);
+      } else {
+        state.selectedTags.set(tag.en, { ...tag, weight: 1.0, space: false, curly: false });
+      }
+      updateUI();
+    }
+
+    function buildCompiledPrompt() {
+      if (state.selectedTags.size === 0) return '';
+
+      const tagsArray = Array.from(state.selectedTags.values());
+
+      if (state.currentMode === 'tags') {
+        return tagsArray.map(t => {
+          let str = t.en;
+          if (t.weight && t.weight !== 1.0) str = `(${str}:${t.weight.toFixed(2)})`;
+          if (t.curly) str = `{${str}|variation}`;
+          return str;
+        }).join(', ');
+      }
+
+      if (state.currentMode === 'slots') {
+        const slots = {
+          Main: [], Style: [], Subject: [], Fashion: [], Scene: [], Pose: [], Misc: [], Negative: []
+        };
+        tagsArray.forEach(t => {
+          const s = t.slot || 'Main';
+          if (slots[s]) slots[s].push(t);
+          else slots.Main.push(t);
+        });
+
+        const sections = [];
+        for (const [slotName, list] of Object.entries(slots)) {
+          if (list.length > 0) {
+            const body = list.map(t => t.en).join(', ');
+            sections.push(`[${slotName}]: ${body}`);
+          }
+        }
+        return sections.join('\n\n');
+      }
+
+      let prose = '';
+      tagsArray.forEach((t, i) => {
+        let chunk = t.en;
+        if (t.weight && t.weight !== 1.0) chunk = `(${chunk}:${t.weight.toFixed(2)})`;
+        if (t.curly) chunk = `{${chunk}|variation}`;
+
+        if (i === 0) {
+          prose = chunk;
+        } else if (t.space) {
+          prose += ` ${chunk}`;
+        } else {
+          prose += `, ${chunk}`;
+        }
+      });
+      return prose;
+    }
+
+    function updateUI() {
+      const prompt = buildCompiledPrompt();
+      const previewEl = document.getElementById('dockPreview');
+      previewEl.textContent = prompt || 'Select tags to assemble prompt...';
+      document.getElementById('activeCount').textContent = `${state.selectedTags.size} selected`;
+      renderTagsGrid();
+    }
+
+    function setupEvents() {
+      const searchInput = document.getElementById('searchInput');
+      const searchClear = document.getElementById('searchClear');
+
+      searchInput.addEventListener('input', (e) => {
+        state.searchQuery = e.target.value.trim().toLowerCase();
+        searchClear.style.display = state.searchQuery ? 'block' : 'none';
+        renderTagsGrid();
+      });
+
+      searchClear.addEventListener('click', () => {
+        searchInput.value = '';
+        state.searchQuery = '';
+        searchClear.style.display = 'none';
+        renderTagsGrid();
+      });
+
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          state.currentMode = btn.dataset.mode;
+          updateUI();
+        });
+      });
+
+      document.getElementById('btnClear').addEventListener('click', () => {
+        if (state.selectedTags.size > 0 && confirm('Clear all selected tags?')) {
+          state.selectedTags.clear();
+          updateUI();
+        }
+      });
+
+      document.getElementById('btnCopy').addEventListener('click', async () => {
+        const text = buildCompiledPrompt();
+        if (!text) return;
+        try {
+          await navigator.clipboard.writeText(text);
+          const btn = document.getElementById('btnCopy');
+          btn.textContent = 'Copied!';
+          setTimeout(() => btn.textContent = 'Copy', 1800);
+        } catch (e) {
+          alert('Failed to copy to clipboard.');
+        }
+      });
+
+      const hubModal = document.getElementById('hubModal');
+      document.getElementById('btnLaunch').addEventListener('click', () => {
+        const text = buildCompiledPrompt();
+        if (!text) {
+          alert('Please select at least one tag first.');
+          return;
+        }
+        hubModal.classList.add('open');
+      });
+
+      document.getElementById('hubClose').addEventListener('click', () => hubModal.classList.remove('open'));
+      hubModal.addEventListener('click', (e) => { if (e.target === hubModal) hubModal.classList.remove('open'); });
+
+      document.querySelectorAll('.hub-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const url = item.dataset.url;
+          const text = buildCompiledPrompt();
+          launchPerchanceGenerator(url, text);
+          hubModal.classList.remove('open');
+        });
+      });
+
+      document.getElementById('btnPresets').addEventListener('click', async () => {
+        const presets = await window.kenzenStorage.getPresets();
+        const action = prompt(`Saved Presets (${presets.length}):\n` +
+          presets.map((p, i) => `${i + 1}. ${p.name} (${p.tags.length} tags)`).join('\n') +
+          '\n\nEnter preset number to LOAD, or type "save <name>" to save current tags:');
+
+        if (!action) return;
+
+        if (action.toLowerCase().startsWith('save ')) {
+          const name = action.slice(5).trim();
+          await window.kenzenStorage.savePreset(name, Array.from(state.selectedTags.values()), state.currentMode);
+          alert(`Saved preset "${name}"!`);
+        } else {
+          const idx = parseInt(action, 10) - 1;
+          if (!isNaN(idx) && presets[idx]) {
+            state.selectedTags.clear();
+            presets[idx].tags.forEach(t => state.selectedTags.set(t.en, t));
+            state.currentMode = presets[idx].mode || 'flux';
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === state.currentMode));
+            updateUI();
+          }
+        }
+      });
+
+      document.getElementById('btnSlots').addEventListener('click', () => {
+        state.currentMode = 'slots';
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === 'slots'));
+        updateUI();
+      });
+    }
+
+    function launchPerchanceGenerator(targetUrl, promptText) {
+      const clean = promptText.trim();
+      navigator.clipboard.writeText(clean).catch(() => {});
+      const enc = encodeURIComponent(clean);
+      let dest = targetUrl;
+
+      if (targetUrl.includes('mack-mcgenerator')) {
+        dest = `${targetUrl}?p=${enc}#prompt=${enc}`;
+      } else if (targetUrl.includes('ai-real-revolution')) {
+        dest = `${targetUrl}?prompt=${enc}`;
+      } else if (targetUrl.includes('qinegen')) {
+        dest = `${targetUrl}#prompt=${enc}`;
+      } else {
+        dest = `${targetUrl}?prompt=${enc}#prompt=${enc}`;
+      }
+      window.open(dest, '_blank');
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

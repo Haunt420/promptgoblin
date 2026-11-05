@@ -1,0 +1,12 @@
+{
+  "appId": "com.kenzen.perchance",
+  "appName": "KENZEN Cockpit",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "android": {
+    "backgroundColor": "#0b0e0c",
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true
+  }
+}

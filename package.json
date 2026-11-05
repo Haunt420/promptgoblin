@@ -1,0 +1,16 @@
+{
+  "name": "kenzen-perchance-android",
+  "version": "1.0.0",
+  "description": "KENZEN Cockpit mobile prompt engineering matrix for Perchance AI generators",
+  "main": "www/index.html",
+  "scripts": {
+    "prepare-assets": "node scripts/generate-icons.js",
+    "cap:sync": "npx cap sync android",
+    "build:apk": "cd android && ./gradlew assembleDebug"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0"
+  }
+}
