@@ -1,60 +1,77 @@
 name: Build Android APK
+
 on:
   push:
-    branches: [ main, master ]
-    tags: [ 'v*' ]
+    branches:
+      - main
+      - master
+    tags:
+      - 'v*'
   workflow_dispatch:
 
 jobs:
   build:
-    name: Build & Package Android APK
+    name: Build and Package Android APK
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java JDK 17
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: 17
 
-      - uses: android-actions/setup-android@v3
-        with:
-          packages: 'platform-tools platforms;android-34 build-tools;34.0.0'
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
 
-      - uses: gradle/actions/setup-gradle@v3
+      - name: Set up Gradle 8.2.1
+        uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: 8.2.1
+          cache-disabled: false
 
-      - uses: actions/setup-node@v4
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
 
-      - run: npm install
-      - run: node scripts/generate-icons.js
+      - name: Install NPM Dependencies
+        run: npm install
 
-      - run: |
+      - name: Generate App Launcher Icons
+        run: node scripts/generate-icons.js
+
+      - name: Setup Gradle Wrapper in Android Project
+        run: |
           cd android
           gradle wrapper --gradle-version 8.2.1 --distribution-type bin
           chmod +x gradlew
 
-      - run: npx cap sync android
+      - name: Sync Capacitor Web Assets to Android
+        run: npx cap sync android
 
-      - run: |
+      - name: Compile Android Debug APK
+        run: |
           cd android
           ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - run: |
+      - name: Move and Prepare APK Artifact
+        run: |
           mkdir -p build-output
           cp android/app/build/outputs/apk/debug/app-debug.apk build-output/kenzen-cockpit-perchance.apk
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload APK as Workflow Artifact
+        uses: actions/upload-artifact@v4
         with:
           name: kenzen-cockpit-perchance-apk
           path: build-output/kenzen-cockpit-perchance.apk
           retention-days: 30
 
-      - if: startsWith(github.ref, 'refs/tags/')
+      - name: Publish GitHub Release on Version Tag
+        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
           files: build-output/kenzen-cockpit-perchance.apk
