@@ -1,0 +1,5 @@
+  }
+});
+
+fs.writeFileSync(outputFile, fullContent, 'utf8');
+console.log(`Generated ${outputFile} containing ${filesToInclude.length} files in CodeMode format.`);
